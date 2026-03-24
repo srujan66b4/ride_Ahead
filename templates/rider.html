@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Registration - Ride Ahead</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ff6347;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            color: #ffa500;
+            margin-bottom: 30px;
+        }
+        input, select {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff6347, #ffa500);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 90%;
+            margin-top: 20px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .error-message {
+            color: #ff0000;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Ride Ahead</h1>
+        <h1>Ride Registration</h1>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="error-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <form method="POST" action="{% url 'rider_registration' %}">
+            {% csrf_token %}
+            <input type="text" name="name" value="{{ request.user.get_full_name }}" placeholder="Full Name" required pattern="[A-Za-z\s]{3,}" title="Please enter a valid name (letters and spaces only, minimum 3 characters)">
+            <input type="email" name="email" value="{{ request.user.email }}" placeholder="Email" required>
+            <input type="tel" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+            <input type="text" name="pan" placeholder="PAN Number" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" title="Please enter a valid PAN number (e.g., ABCDE1234F)">
+            <input type="text" name="license" placeholder="License Number" required>
+            <input type="text" name="aadhaar" placeholder="Aadhaar Number" required pattern="[0-9]{12}" title="Please enter a valid 12-digit Aadhaar number">
+            <select name="rideType" required aria-label="Select your ride type">
+                <option value="" disabled selected>Select Ride Type</option>
+                <option value="bike">Bike</option>
+                <option value="car">Car</option>
+                <option value="auto">Auto</option>
+            </select>
+            <button type="submit">Register Ride</button>
+        </form>
+        <p style="margin-top: 20px;">
+            <a href="{% url 'index' %}" style="color: #ff6347; text-decoration: none;">Back to Home</a>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride Ahead - Home</title>
+  {% load static %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+      color: #333;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .header {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      width: 80%;
+      max-width: 800px;
+      margin: 50px auto;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #ff6347;
+    }
+    .button {
+      padding: 12px 25px;
+      background: linear-gradient(to right, #ff6347, #ffa500);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      display: inline-block;
+      margin: 10px;
+    }
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .map-container {
+      height: 300px;
+      width: 100%;
+      margin: 15px 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .booking-form {
+      margin-top: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .distance-info {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    .cost-info {
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .cost-info h3 {
+      color: #ff6347;
+      margin-bottom: 10px;
+    }
+    .cost-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .total-cost {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #ff6347;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+    }
+    .logo {
+      position: absolute;
+      left: 30px;
+      top: 15px;
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      border-radius: 50%;
+      padding: 5px;
+      background: white;
+      border: 3px solid #ff6347;
+    }
+    
+    .logo:hover {
+      transform: scale(1.1) rotate(10deg);
+      filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.2));
+    }
+
+    @keyframes logoEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) rotate(-20deg);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+      }
+    }
+
+    .logo {
+      animation: logoEntrance 0.8s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="{% url 'index' %}">
+      <img src="{% static 'images/bunny.png' %}" alt="Ride Ahead Logo" class="logo">
+    </a>
+    <h1>Ride Ahead</h1>
+    <div class="nav-buttons">
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="button">Profile</a>
+        <a href="{% url 'logout' %}" class="button">Logout</a>
+      {% else %}
+        <a href="{% url 'register' %}" class="button">Register</a>
+        <a href="{% url 'login' %}" class="button">Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container">
+    {% if user.is_authenticated %}
+      <div class="booking-section">
+        <h2>Book a New Ride</h2>
+        <form method="post" action="{% url 'book_ride' %}" class="booking-form">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="pickup">Pickup Location:</label>
+            <input type="text" id="pickup" name="location" required>
+          </div>
+          <div class="form-group">
+            <label for="destination">Destination:</label>
+            <input type="text" id="destination" name="destination" required>
+          </div>
+          <div class="form-group">
+            <label for="scheduled_time">Scheduled Time:</label>
+            <input type="datetime-local" id="scheduled_time" name="time" required>
+          </div>
+          <div class="form-group">
+            <label for="vehicle_type">Vehicle Type:</label>
+            <select id="vehicle_type" name="vehicle_type" class="form-control" required>
+              <option value="">Select Vehicle Type</option>
+              <option value="bike">Bike</option>
+              <option value="car">Car</option>
+              <option value="auto">Auto</option>
+            </select>
+          </div>
+          <div class="map-container" id="booking-map"></div>
+          <div class="cost-info" id="cost-info"></div>
+          <button type="submit" class="button">Book Ride</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="booking-section">
+        <h2>Welcome to Ride Ahead</h2>
+        <p>Please login or register to book a ride.</p>
+        <div class="user-actions">
+          <a href="{% url 'login' %}" class="button">Login</a>
+          <a href="{% url 'register' %}" class="button">Register</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    let map;
+    let pickupMarker;
+    let destMarker;
+    let distanceInfo;
+
+    function initMap() {
+      // Initialize map
+      map = L.map('booking-map').setView([0, 0], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Add distance info div
+      distanceInfo = L.control({position: 'topright'});
+      distanceInfo.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'distance-info');
+        this.update();
+        return this._div;
+      };
+      distanceInfo.update = function(props) {
+        this._div.innerHTML = '<strong>Distance:</strong> <span id="distance-value">-</span> km';
+      };
+      distanceInfo.addTo(map);
+
+      // Initialize markers
+      pickupMarker = L.marker([0, 0], {
+        draggable: true,
+        title: 'Pickup Location',
+        icon: L.divIcon({
+          className: 'pickup-marker',
+          html: '<div style="position: relative; width: 30px; height: 40px;"><div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 20px; background: #4169e1;"></div><div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #4169e1; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.3);"></div></div>',
+          iconSize: [30, 40],
+          iconAnchor: [15, 40]
+        })
+      }).addTo(map);
+
+      destMarker = L.marker([0, 0], {
+        draggable: true,
+        title: 'Destination',
+        icon: L.divIcon({
+          className: 'destination-marker',
+          html: '<div style="position: relative; width: 30px; height: 40px;"><div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; height: 20px; background: #ff0000;"></div><div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ff0000; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3);"></div></div>',
+          iconSize: [30, 40],
+          iconAnchor: [15, 40]
+        })
+      }).addTo(map);
+
+      // Update form fields and distance when markers are dragged
+      pickupMarker.on('dragend', function(e) {
+        updateLocation('pickup', e.target.getLatLng());
+        updateDistance();
+      });
+
+      destMarker.on('dragend', function(e) {
+        updateLocation('destination', e.target.getLatLng());
+        updateDistance();
+      });
+
+      // Update markers and distance when form fields change
+      document.getElementById('pickup').addEventListener('change', function() {
+        updateMarker('pickup', this.value);
+      });
+
+      document.getElementById('destination').addEventListener('change', function() {
+        updateMarker('destination', this.value);
+      });
+    }
+
+    function updateLocation(field, latLng) {
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latLng.lat}&lon=${latLng.lng}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById(field).value = data.display_name;
+        });
+    }
+
+    function updateMarker(field, address) {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            const latLng = [data[0].lat, data[0].lon];
+            if (field === 'pickup') {
+              pickupMarker.setLatLng(latLng);
+            } else {
+              destMarker.setLatLng(latLng);
+            }
+            updateMapBounds();
+            updateDistance();
+          }
+        });
+    }
+
+    function updateMapBounds() {
+      const bounds = L.latLngBounds([pickupMarker.getLatLng(), destMarker.getLatLng()]);
+      map.fitBounds(bounds);
+    }
+
+    function calculateCost(distance, vehicleType) {
+      let rate, baseRate, extendedRate;
+      
+      switch(vehicleType) {
+        case 'bike':
+          baseRate = 15;
+          extendedRate = 10;
+          threshold = 2;
+          break;
+        case 'car':
+          baseRate = 30;
+          extendedRate = 25;
+          threshold = 3;
+          break;
+        case 'auto':
+          baseRate = 18;
+          extendedRate = 13;
+          threshold = 2;
+          break;
+        default:
+          return 0;
+      }
+
+      if (distance <= threshold) {
+        return distance * baseRate;
+      } else {
+        return (threshold * baseRate) + ((distance - threshold) * extendedRate);
+      }
+    }
+
+    function updateCost() {
+      const distance = parseFloat(document.getElementById('distance-value').textContent);
+      const vehicleType = document.getElementById('vehicle_type').value;
+      
+      if (distance && vehicleType) {
+        const cost = calculateCost(distance, vehicleType);
+        const costInfo = document.getElementById('cost-info');
+        
+        costInfo.innerHTML = `
+          <h3>Cost Details</h3>
+          <div class="cost-details">
+            <span>Distance:</span>
+            <span>${distance.toFixed(2)} km</span>
+          </div>
+          <div class="total-cost">
+            Total Cost: ₹${cost.toFixed(2)}
+          </div>
+        `;
+      }
+    }
+
+    // Update cost when distance or vehicle type changes
+    document.getElementById('vehicle_type').addEventListener('change', updateCost);
+    
+    // Modify the existing updateDistance function
+    function updateDistance() {
+      const pickupLatLng = pickupMarker.getLatLng();
+      const destLatLng = destMarker.getLatLng();
+      
+      if (pickupLatLng && destLatLng) {
+        const distance = pickupLatLng.distanceTo(destLatLng) / 1000; // Convert to kilometers
+        document.getElementById('distance-value').textContent = distance.toFixed(2);
+        updateCost();
+      }
+    }
+
+    // Initialize map when the page loads
+    window.onload = initMap;
+  </script>
+</body>
+</html>

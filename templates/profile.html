@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Ride Ahead</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            color: #333;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #ff6347;
+        }
+        .button {
+            padding: 12px 25px;
+            background: linear-gradient(to right, #ff6347, #ffa500);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .profile-info {
+            margin: 20px 0;
+        }
+        .profile-info p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+        .profile-info strong {
+            color: #ff6347;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Ride Ahead</h1>
+        <div class="nav-buttons">
+            <a href="{% url 'bunny' %}" class="button">Home</a>
+            <a href="{% url 'logout' %}" class="button">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Your Profile</h2>
+        <div class="profile-info">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            {% if rider %}
+                <p><strong>Rider Type:</strong> {{ rider.ride_type|title }}</p>
+                <p><strong>Phone:</strong> {{ rider.phone }}</p>
+                <p><strong>PAN Number:</strong> {{ rider.pan_number }}</p>
+                <p><strong>License Number:</strong> {{ rider.license_number }}</p>
+                <p><strong>Aadhaar Number:</strong> {{ rider.aadhaar_number }}</p>
+                <p><strong>Verification Status:</strong> {% if rider.is_verified %}Verified{% else %}Pending{% endif %}</p>
+            {% else %}
+                <p>You are not registered as a rider yet.</p>
+                <a href="{% url 'rider_registration' %}" class="button">Register as Rider</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

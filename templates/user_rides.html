@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Rides</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #ff6347;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .ride-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+        .ride-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .ride-card h3 {
+            color: #ff6347;
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .ride-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+        }
+        .ride-info p {
+            margin: 8px 0;
+            font-size: 1.1rem;
+        }
+        .ride-info strong {
+            color: #ff6347;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .status:hover {
+            transform: scale(1.05);
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeeba;
+        }
+        .status-accepted {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .status-completed {
+            background: #cce5ff;
+            color: #004085;
+            border: 2px solid #b8daff;
+        }
+        .view-details {
+            display: inline-block;
+            background: linear-gradient(to right, #ff6347, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .view-details:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(to right, #ff6347, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .no-rides {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .no-rides p {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #ff6347;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Rides</h1>
+        
+        {% if rides %}
+            {% for ride in rides %}
+                <div class="ride-card">
+                    <h3>Ride #{{ ride.id }}</h3>
+                    <div class="ride-info">
+                        <p><strong>Pickup Location:</strong> {{ ride.pickup_location }}</p>
+                        <p><strong>Destination:</strong> {{ ride.destination }}</p>
+                        <p><strong>Scheduled Time:</strong> {{ ride.scheduled_time }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="status status-{{ ride.status }}">
+                                {{ ride.status|title }}
+                            </span>
+                        </p>
+                    </div>
+                    <a href="{% url 'user_ride_details' ride.id %}" class="view-details">View Details</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-rides">
+                <p>You don't have any rides yet.</p>
+            </div>
+        {% endif %}
+
+        <a href="{% url 'bunny' %}" class="back-button">Book a New Ride</a>
+    </div>
+</body>
+</html> 

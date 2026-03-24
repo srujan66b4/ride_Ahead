@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Details</title>
+    {% load static %}
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #ff6347;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .ride-info {
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .info-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .info-section:hover {
+            transform: translateY(-5px);
+        }
+        .info-section h2 {
+            color: #ff6347;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            margin: 10px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .info-item:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: scale(1.02);
+        }
+        .info-item strong {
+            color: #ff6347;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+        .status:hover {
+            transform: scale(1.05);
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeeba;
+        }
+        .status-accepted {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .status-completed {
+            background: #cce5ff;
+            color: #004085;
+            border: 2px solid #b8daff;
+        }
+        .driver-info {
+            background: linear-gradient(145deg, #ffffff, #f5f5f5);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            animation: slideUp 0.5s ease-out;
+        }
+        .driver-info h2 {
+            color: #ff6347;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(to right, #ff6347, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .no-driver {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            animation: pulse 2s infinite;
+        }
+        .no-driver p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ride Details</h1>
+        
+        <div class="ride-info">
+            <div class="info-section">
+                <h2>Ride Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Pickup Location</strong>
+                        {{ ride.pickup_location }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Destination</strong>
+                        {{ ride.destination }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Scheduled Time</strong>
+                        {{ ride.scheduled_time }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Status</strong>
+                        <span class="status status-{{ ride.status }}">
+                            {{ ride.status|title }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if driver %}
+                <div class="driver-info">
+                    <h2>Driver Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Driver Name</strong>
+                            {{ driver.full_name }}
+                        </div>
+                        <div class="info-item">
+                            <strong>Phone Number</strong>
+                            {{ driver.phone }}
+                        </div>
+                        <div class="info-item">
+                            <strong>Vehicle Type</strong>
+                            {{ driver.ride_type|title }}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="no-driver">
+                    <p>Waiting for a driver to accept your ride request...</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'user_rides' %}" class="back-button">Back to My Rides</a>
+    </div>
+</body>
+</html> 
